@@ -1,5 +1,6 @@
 package com.example.umpirebuddyapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -9,8 +10,12 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import android.view.View;
+import android.widget.ImageView
+import android.widget.PopupMenu
+import android.widget.PopupWindow
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_popout_strike.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +24,16 @@ class MainActivity : AppCompatActivity() {
     var curr_ball_count = 0
     var curr_strike_count = 0
 
+    //private Button btn_sub;
+
+
+
+
+
+
+
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,16 +41,44 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
+        about_button.setOnClickListener {
+            val intent = Intent(this, About::class.java)
+
+            startActivity(intent)
+        }
+
+
         //This block will increment the ball count using the Ball Counter button
         BallNumber.setText("" + curr_ball_count )
 
         BallCounter.setOnClickListener {
             //If not working atm
-            if (curr_ball_count  == 4) {
+            if (curr_ball_count == 4) {
+                curr_strike_count = 3;
                 BallNumber.setText("4 Balls, walk.")
-            }
-            BallNumber.setText("Current Ball Count: " + curr_ball_count ++)
+                StrikeNumber.setText("Walk!")
 
+                val window = PopupWindow (this)
+                val view = layoutInflater.inflate(R.layout.layout_popout_strike,null)
+                window.contentView = view
+                val imageViewStrike = view
+                val imageView = view.findViewById<ImageView>(R.id.imageViewStrike)
+                imageViewStrike.setOnClickListener {
+                    window.dismiss()
+
+                    curr_ball_count = curr_ball_count * mynum
+                    curr_strike_count = curr_strike_count * mynum
+
+                    BallNumber.setText("Resetting back to Zero")
+                    StrikeNumber.setText("Resetting back to Zero")
+                }
+                window.showAsDropDown(StrikeCounter)
+
+
+            } else if (curr_ball_count != 4) {
+                BallNumber.setText("Current Ball Count: " + curr_ball_count++)
+
+            }
         }
 
         //This block will increment the Strike count using the Strike Counter button
@@ -43,12 +86,32 @@ class MainActivity : AppCompatActivity() {
 
         StrikeCounter.setOnClickListener {
             //If not working atm
-            if (curr_strike_count == 0) {
+            if (curr_strike_count == 3) {
+                curr_ball_count = 4;
                 StrikeNumber.setText("Strike! You're Out!")
-            }
-            StrikeNumber.setText("Current Strike Count: " + curr_strike_count ++)
+                BallNumber.setText("Strike!")
 
+                val window = PopupWindow(this)
+                val view = layoutInflater.inflate(R.layout.layout_popup, null)
+                window.contentView = view
+                val imageView = view.findViewById<ImageView>(R.id.imageView)
+                imageView.setOnClickListener {
+                    window.dismiss()
+
+                    curr_ball_count  = curr_ball_count * mynum
+                    curr_strike_count  = curr_strike_count * mynum
+
+                    BallNumber.setText("Resetting back to Zero")
+                    StrikeNumber.setText("Resetting back to Zero")
+                }
+                window.showAsDropDown(BallCounter)
+
+            } else if (curr_strike_count != 3) {
+                StrikeNumber.setText("Current Strike Count: " + curr_strike_count++)
+
+            }
         }
+
 
 
         ResetButton.setOnClickListener {
